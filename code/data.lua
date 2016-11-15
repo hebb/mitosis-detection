@@ -35,7 +35,7 @@ function getImagePaths(folder)
 	-- find the image path names
 	local imagePaths = torch.CharTensor()	-- path to each image in dataset
 	local imageClass = torch.LongTensor()	-- class index of each image (class index in self.classes)
-	local classList = {}					-- index of imageList to each image of a particular class
+	local classList = {}			-- index of imageList to each image of a particular class
 
 	-- create file listing the paths to every image
 	local classFindFiles = {}
@@ -191,20 +191,43 @@ function getRandomSample(classes, batchSize, classList, imagePaths)
 		dataset.data[{ {}, {i}, {}, {}  }]:add(-mean[i])
 		
 		stdv[i] = dataset.data[{ {}, {i}, {}, {}  }]:std()
-		--[
 		if stdv[i] ~= 0 then
 			dataset.data[{ {}, {i}, {}, {}  }]:div(stdv[i])
 		end
-		--]]
-		--[[
-		if stdv[i] == 0 then
-			s = dataset.data:size()
-			dataset.data[{ {}, {i}, {}, {}, }] = torch.Tensor(s[1], 1, s[3], s[4])
-			stdv[i] = dataset.data[{ {}, {i}, {}, {} }]:std()
-		end
-		dataset.data[{ {}, {i}, {}, {}, }]:div(stdv[i])
-		--]]
 	end
 
 	return dataset
+end
+
+function getBatchSizes(classes, classList, batchSize)
+	local numSamples = 0
+	for i=1,#classes do
+		numSamples = numSamples + classList[i]:nElement()
+	end
+	local numBatches = math.ceil(numSamples/batchSize)
+
+	local batchSizes = {}
+	for i=1,#classes do
+		local roundFlag = 0
+		local batchSum = 0
+		batchSizes[i] = {}
+		for j=1,numBatches-1 do
+			if roundFlag == 0 then
+				batchSizes[i][j] = math.floor(classList[i]:nElement()/numBatches)
+			else
+				batchSizes[i][j] = math.ceil(classList[i]:nElement()/numBatches)
+			end
+			
+			batchSum = batchSum + batchSizes[i][j]
+			
+			if j*classList[i]:nElement()/numBatches > batchSum then
+				roundFlag = 1
+			else
+				roundFlag = 0
+			end
+		end
+		batchSizes[i][numBatches] = classList[i]:nElement() - batchSum
+	end
+	
+	return batchSizes, numBatches, numSamples
 end

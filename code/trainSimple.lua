@@ -1,12 +1,17 @@
 require 'torch';
 require 'nn';
-require 'cutorch';
-require 'cunn';
+
+cudaFlag = 1
+
+if cudaFlag == 1 then
+	require 'cutorch';
+	require 'cunn';
+end
 
 --torch.setnumthreads(4)
 
 -- parameters
-local batchSize = 1000
+local batchSize = 100
 local learningRate = 0.01
 local maxIteration = 10
 
@@ -26,16 +31,18 @@ testClassList[2] = classList[2][{{math.ceil(classList[2]:size(1)/2)+1,classList[
 --]]
 --trainClassList = classList
 
+local classRatio = trainClassList[2]:size(1)/trainClassList[1]:size(1)
+
 -- define the model
 dofile("/home/andrew/mitosis/models/model.lua")
 
 -- train the network
 dofile("train.lua")
-train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, maxIteration)
+--train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, maxIteration, classRatio, false)
 
 -- save the model
-torch.save('/home/andrew/mitosis/nets/net.t7', net)
---net = torch.load('/home/andrew/mitosis-detection/model.t7')
+--torch.save('/home/andrew/mitosis/nets/net2.t7', net)
+net = torch.load('/home/andrew/mitosis/nets/net2.t7')
 
 -- test the network
 dofile("test.lua")

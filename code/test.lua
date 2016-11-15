@@ -1,44 +1,12 @@
-require 'torch';
-require 'nn';
-require 'cutorch';
-require 'cunn';
+function test(net, classes, testClassList, imagePaths, batchSize)
+	net:evaluate()
 
-function test(classes, testClassList, imagePaths, batchSize)
 	class_performance = {0, 0}
 	correct = 0
 	class_number = {0, 0}
-	numSamples = 0
 
 	-- compute size of each batch
-	-- alternate rounding direction to prevent error accumulation and bound the size of the last batch
-	local numSamples = 0
-	for i=1,#classes do
-		numSamples = numSamples + testClassList[i]:nElement()
-	end
-	local numBatches = math.ceil(numSamples/batchSize)
-
-	local batchSizes = {}
-	for i=1,#classes do
-		local roundFlag = 0
-		local batchSum = 0
-		batchSizes[i] = {}
-		for j=1,numBatches-1 do
-			if roundFlag == 0 then
-				batchSizes[i][j] = math.floor(testClassList[i]:nElement()/numBatches)
-			else
-				batchSizes[i][j] = math.ceil(testClassList[i]:nElement()/numBatches)
-			end
-			
-			batchSum = batchSum + batchSizes[i][j]
-			
-			if j*testClassList[i]:nElement()/numBatches > batchSum then
-				roundFlag = 1
-			else
-				roundFlag = 0
-			end
-		end
-		batchSizes[i][numBatches] = testClassList[i]:nElement() - batchSum
-	end
+	batchSizes, numBatches, numSamples = getBatchSizes(classes, testClassList, batchSize)
 
 	local sampleSum = {}
 	for i=1,#classes do
@@ -54,7 +22,7 @@ function test(classes, testClassList, imagePaths, batchSize)
 		end
 
 		local testset = getSample(classes, sampleList, imagePaths)
-		if cudaFlag == 1 then
+		if cudaFlag then
 			testset.data = testset.data:cuda()
 			testset.label = testset.label:cuda()
 		end

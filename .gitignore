@@ -2,11 +2,8 @@
 csv_results
 curves
 images
-maps
-matlab
-MITOS
+maps*
+MITOS*
 MITOS2
-mitosis-train
-mitosis-train2
-mitosis-train-large
-mitosis-train-large2
+mitosis-train*
+nets
