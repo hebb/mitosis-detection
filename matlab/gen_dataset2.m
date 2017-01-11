@@ -42,7 +42,7 @@ for j=1:5
         [m, p] = add_dataset2(image_file, csv_file, new_trainset_folder, map_file);
         M = M + m;
         P = P + p;
-        k = k + 1
+        k = k + 1;
         waitbar(k/N,h,['Creating training set ... ' num2str(100*k/N) ' %']);
     end
 end

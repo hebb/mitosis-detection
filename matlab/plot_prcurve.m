@@ -8,7 +8,7 @@ close all
 %d = 32.573;         % a detection within d pixels of the ground truth is considered correct
 d = 20.358;
 %d = 10;
-threshold = 0.1:0.02:1;
+threshold = 0.9:0.001:1;
 precision = zeros(1,size(threshold,2));
 recall = zeros(1,size(threshold,2));
 f1 = zeros(1,size(threshold,2));
@@ -54,12 +54,17 @@ for h=1:size(threshold,2)
         end
         ground_truth = round(tmp_gt);
 
+        len_res = size(results,1);
+        res_tally = zeros(len_res,1);
         for j=1:len_gt
             false_neg = false_neg + 1;
-            for k=1:size(results,1)
-                if (ground_truth(j,1) - results(k,1))^2 + (ground_truth(j,2) - results(k,2))^2 < d^2
+            for k=1:len_res
+                if (ground_truth(j,1) - results(k,1))^2 + ...
+                        (ground_truth(j,2) - results(k,2))^2 < d^2 ...
+                        && res_tally(k) == 0
                     true_pos = true_pos + 1;
                     false_neg = false_neg - 1;
+                    res_tally(k) = 1;
                     break
                 end
             end
@@ -70,7 +75,7 @@ for h=1:size(threshold,2)
     recall(h) = true_pos/(true_pos + false_neg);
     f1(h) = 2*precision(h)*recall(h)/(precision(h) + recall(h));
     
-   waitbar(h/size(threshold,2));
+    waitbar(h/size(threshold,2));
 end
 close(g)
 

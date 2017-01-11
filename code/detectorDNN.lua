@@ -12,12 +12,9 @@ local c = os.clock()
 local t = os.time()
 
 local folder = '/home/andrew/mitosis/MITOS/testing/'
-local netFolder2 = '/home/andrew/mitosis/nets/dnn2_halfset_aug_ub_lr05_mini200/'
-local netPath2 = '/home/andrew/mitosis/nets/dnn2_halfset_ub_30i_lr001.t7'
-local netPath1 = netFolder2 .. 'iter40.t7'
---local netPath1 = '/home/andrew/mitosis/nets/dnn2_halfset_ub_30i_lr001.t7'
+local netPath1 = '/home/andrew/mitosis/nets/net.t7'
+local netPath2 = '/home/andrew/mitosis/nets/dnn2_fullset_aug_30i_lr05_mini200_weightdecay0001.t7'
 
---local N = 8 -- computes confidence at every N pixels, vertically and horizontally
 local threshold = 0.1
 
 dofile("getImagePaths.lua")
@@ -37,7 +34,6 @@ for i=1,2*d+1 do
 	for j=1,2*d+1 do
 		if (i-d-1)^2 + (j-d-1)^2 >= d^2 then
 			kernel[i][j] = 0
-		else
 		end
 	end
 end
@@ -52,15 +48,15 @@ for k,imagePath in ipairs(imagePaths) do
 	--local windowHeight = 101
 
 	local net1 = torch.load(netPath1)
-	local net2 = torch.load(netPath2)
+	--local net2 = torch.load(netPath2)
 	net1 = expand(net1)
-	net2 = expand(net2)
+	--net2 = expand(net2)
 	if cuda then
 		net1 = net1:cuda()
-		net2 = net2:cuda()
+		--net2 = net2:cuda()
 	else
 		net1 = net1:float()
-		net2 = net2:float()
+		--net2 = net2:float()
 	end
 
 	local img = image.load(imagePath, 3, 'float')
@@ -70,7 +66,7 @@ for k,imagePath in ipairs(imagePaths) do
 		img = img:float()
 	end
 
-	-- scan eight versions of the image
+	-- scan sixteen versions of the image
 	-- four rotations and two neural nets
 	--]]
 	--[
@@ -88,15 +84,25 @@ for k,imagePath in ipairs(imagePaths) do
 			maps[(i-1)*2+j] = image.rotate(tmp, -(i-1)*math.pi/2)
 		end
 	end
+	net1 = nil
 --[[
 	for i=5,8 do	
-		tmp = image.rotate(img, (i-1)*math.pi/2)
-		tmp = scan(tmp, net2, windowWidth, windowHeight, N)
-		maps[i] = image.rotate(tmp, -(i-1)*math.pi/2)
+		for j=1,2 do
+			local tmp = image.rotate(img, (i-1)*math.pi/2)
+			if j == 2 then
+				tmp = image.hflip(tmp)
+				tmp = scan(tmp, net2)
+				tmp = image.hflip(tmp)
+			else
+				tmp = scan(tmp, net2)
+			end
+			maps[(i-1)*2+j] = image.rotate(tmp, -(i-1)*math.pi/2)
+		end
 	end
+	net2 = nil
 --]]
 
-	-- take the mean of the eight maps
+	-- take the mean of the sixteen maps
 	--[
 	local sum = maps[1]
 	for i=2,#maps do

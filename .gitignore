@@ -1,9 +1,2 @@
-*.txt
-csv_results
-curves
-images
-maps*
-MITOS*
-MITOS2
-mitosis-train*
-nets
+data
+thesis
