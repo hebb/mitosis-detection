@@ -1,4 +1,4 @@
-function train(net, criterion, classes, classList, imagePaths, batchSize, learningRate, maxIteration, classRatio, augment)
+function train(net, criterion, classes, classList, imagePaths, batchSize, learningRate, learningRateDecay, weightDecay, momentum, maxIteration, classRatio, augment)
 	c = os.clock()
 	t = os.time()
 
@@ -24,33 +24,35 @@ function train(net, criterion, classes, classList, imagePaths, batchSize, learni
 
 	net:training()
 
-	local iteration = 1
-
 	params, gradParams = net:getParameters()
-	optimState = {learningRate = 0.05, weightDecay = 0.0001}
+	optimState = {}
+	optimState.learningRate = learningRate
+	optimState.learningRateDecay = learningRateDecay
+	optimState.weightDecay = weightDecay
+	optimState.momentum = momentum
 
 	--while true do
 	for epoch = 1, maxIteration do
-		print(epoch)
+		c1 = os.clock()
+		t1 = os.time()
+
 		local currentError = 0
---[
+
 		local sampleSum = {}
 		for i=1,#classes do
 			sampleSum[i] = 0
 		end
---]]
---[
+
 		for i=1,numBatches do
 			t2 = os.time()
 			c2 = os.clock()
-			-- split trainClassList into batches
---[
+
+			-- split classList into batches
 			local sampleList = {}
 			for j=1,#classes do
 				sampleList[j] = classList[j][{{sampleSum[j] + 1, sampleSum[j] + batchSizes[j][i]}}]
 				sampleSum[j] = sampleSum[j] + batchSizes[j][i]
 			end
---]]
 
 			-- get dataset from sampleList
 			local dataset = getSample(classes, sampleList, imagePaths)
@@ -67,43 +69,10 @@ function train(net, criterion, classes, classList, imagePaths, batchSize, learni
 				dataset.data = dataset.data:cuda()
 				dataset.label = dataset.label:cuda()
 			end
---[[
-			for t = 1, dataset:size() do
-				perm = torch.randperm(dataset:size())
-				local example = dataset[perm[t]]
---[[				local input = example[1]
-				local target = example[2]
 
-				input = input:cuda()
-
-				currentError = currentError + criterion:forward(net:forward(input), target)
-
-				net:updateGradInput(input, criterion:updateGradInput(net.output, target))
---[[
-				if target == 1 then
-					net:accUpdateGradParameters(input, criterion.gradInput, learningRate*classRatio)
-				else
-					net:accUpdateGradParameters(input, criterion.gradInput, learningRate)
-				end
---]]
---[[				net:accUpdateGradParameters(input, criterion.gradInput, learningRate)
-			end
---]]
-
---[[
-			local example = dataset[1]
-			local input = example[1]
-			local target = example[2]
---]]
 			local input = dataset.data
 			local target = dataset.label
 
---[[
-			currentError = currentError + criterion:forward(net:forward(input), target)
-
-			net:updateGradInput(input, criterion:updateGradInput(net.output, target))
-			net:accUpdateGradParameters(input, criterion.gradInput, learningRate)
---]]
 			function feval(params)
 				gradParams:zero()
 
@@ -115,27 +84,25 @@ function train(net, criterion, classes, classList, imagePaths, batchSize, learni
 				return loss, gradParams
 			end
 			_, fs = optim.sgd(feval, params, optimState)
---]]
-			print(fs[1])
-			print(os.time()-t2)
-			print(os.clock()-c2)
-		end
 
-		print(fs[1])
-
---[[
-		currentError = currentError/numBatches
-		print("# current error = " .. currentError)
-		iteration = iteration + 1
-		if maxIteration > 0 and iteration > maxIteration then
-			print("# StochasticGradient: you have reached the maximum number of iterations")
-			print("# training error = " .. currentError)
-			break
+			print('Epoch = ' .. epoch .. ' of ' .. maxIteration)
+			print('Batch = ' .. i .. ' of ' .. numBatches)
+			print('Error = ' .. fs[1])
+			print('CPU batch time = ' .. os.clock()-c2 .. ' seconds')
+			print('Actual batch time (rounded) = ' .. os.time()-t2 .. ' seconds')
+			if epochClock then
+				print('CPU epoch time = ' .. epochClock .. ' seconds')
+				print('Actual epoch time (rounded) = ' .. epochTime .. ' seconds')
+			end
+			print('')
 		end
---]]
+		
+		epochClock = os.clock()-c1
+		epochTime = os.time()-t1
 	end
 
-	print(os.clock()-c)
-	print(os.time()-t)
-
+	totalClock = os.clock()-c
+	totalTime = os.time()-t
+	print('Total CPU time = ' .. totalClock .. ' seconds')
+	print('Total actual time (rounded) ' .. totalTime .. ' seconds')
 end

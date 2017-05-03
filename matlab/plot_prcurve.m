@@ -8,7 +8,7 @@ close all
 %d = 32.573;         % a detection within d pixels of the ground truth is considered correct
 d = 20.358;
 %d = 10;
-threshold = 0.9:0.001:1;
+threshold = 0.1:0.01:1;
 precision = zeros(1,size(threshold,2));
 recall = zeros(1,size(threshold,2));
 f1 = zeros(1,size(threshold,2));

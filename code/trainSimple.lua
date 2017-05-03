@@ -14,9 +14,10 @@ end
 -- parameters
 local batchSize = 100
 local learningRate = 0.01
+local weightDecay = 0.000
 local maxIteration = 10
 
-local folder  = '/home/andrew/mitosis/mitosis-train-old/'
+local folder  = '/home/andrew/mitosis/data/mitosis-train-old/'
 
 dofile("data.lua")
 local classes, classList, imagePaths = getImagePaths(folder)
@@ -43,14 +44,17 @@ local classRatio = trainClassList[2]:size(1)/trainClassList[1]:size(1)
 -- define the model
 dofile("/home/andrew/mitosis/models/model.lua")
 
+-- load the pre-trained model
+torch.load('/home/andrew/mitosis/data/nets/model-pretrained.t7')
+
 -- train the network
 dofile("train.lua")
-train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, maxIteration, classRatio, false)
+train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, weightDecay, maxIteration, classRatio, false)
 
 -- save the model
-torch.save('/home/andrew/mitosis/nets/testNet.t7', net)
+torch.save('/home/andrew/mitosis/data/nets/testNet.t7', net)
 --net = torch.load('/home/andrew/mitosis/nets/testNet.t7')
 
 -- test the network
 dofile("test.lua")
-test(net, classes, testClassList, imagePaths, batchSize)
+--test(net, classes, testClassList, imagePaths, batchSize)

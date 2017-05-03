@@ -3,7 +3,7 @@ require 'nn';
 require 'optim';
 
 --cudaFlag = true
-cudaFlag = false
+cudaFlag = true
 
 if cudaFlag then
 	require 'cutorch';
@@ -13,30 +13,20 @@ end
 -- parameters
 local batchSize = 200		-- batch size is approximate; actual batchSizes will vary by +/- N-1, where N is the number of classes
 local learningRate = 0.05
-local maxIteration = 30
+local learningRateDecay = 0.0005
+local weightDecay = 0.000
+local momentum = 0.9
+local maxIteration = 20
 local augment = true
 
-local folder = '/home/andrew/mitosis/mitosis-train-large/'
+local trainFolder = '/home/andrew/mitosis/data/mitosis-train-large/'
+local testFolder = '/home/andrew/mitosis/data/mitosis-test/'
 
 dofile("data.lua")
 
-local classes, classList, imagePaths = getImagePaths(folder)
+local classes, trainClassList, trainImagePaths = getImagePaths(trainFolder)
+local classes, testClassList, testImagePaths = getImagePaths(testFolder)
 
--- split dataset into training and test sets
-local trainClassList = {}
-local testClassList = {}
-
--- train with the entire dataset and don't test
-trainClassList = classList
-testClassList = classList
-
--- train with a subset of the full dataset
---[[
-trainClassList[1] = classList[1][{{1,math.ceil(classList[1]:size(1)/2)}}]
-trainClassList[2] = classList[2][{{1,math.ceil(classList[2]:size(1)/2)}}]
-testClassList[1] = classList[1][{{math.ceil(classList[1]:size(1)/2)+1,math.ceil(classList[1]:size(1)/1)}}]
-testClassList[2] = classList[2][{{math.ceil(classList[2]:size(1)/2)+1,math.ceil(classList[2]:size(1)/1)}}]
---]]
 
 local classRatio = trainClassList[2]:size(1)/trainClassList[1]:size(1)
 local weights = torch.Tensor(2)
@@ -55,9 +45,9 @@ end
 
 -- train the network
 dofile("train.lua")
---net = torch.load('/home/andrew/mitosis/nets/dnn1_halfset_aug_20i_lr001.t7')
+--net = torch.load('/home/andrew/mitosis/data/nets/dnn1_halfset_aug_20i_lr001.t7')
 --train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, maxIteration)
---torch.save('/home/andrew/mitosis/nets/dnn1_fullset_aug_30i_lr05_mini200.t7', net)
+--torch.save('/home/andrew/mitosis/data/nets/dnn1_fullset_aug_30i_lr05_mini200.t7', net)
 
 -- test the network
 dofile("test.lua")
@@ -76,10 +66,11 @@ end
 
 -- train the network
 dofile("train.lua")
---net = torch.load('/home/andrew/mitosis/nets/dnn2_fullset_aug_30i_lr05_mini200_weightdecay1.t7')
-train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, maxIteration, classRatio, augment, netFolder)
-torch.save('/home/andrew/mitosis/nets/dnn2_fullset_aug_30i_lr05_mini200_weightdecay0001.t7', net)
+net = torch.load('/home/andrew/mitosis/data/nets/model2-pretrained-greedylayerwise2.t7')
+train(net, criterion, classes, trainClassList, trainImagePaths, batchSize, learningRate, learningRateDecay, weightDecay, momentum, maxIteration, classRatio, augment, netFolder)
+torch.save('/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7', net)
 
 -- test the network
 dofile("test.lua")
-test(net, classes, testClassList, imagePaths, batchSize)
+--net = torch.load('/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_mini200_aept.t7')
+test(net, classes, testClassList, testImagePaths, batchSize)

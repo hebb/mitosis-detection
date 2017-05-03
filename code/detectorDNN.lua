@@ -11,9 +11,10 @@ local dir = require 'pl.dir';
 local c = os.clock()
 local t = os.time()
 
-local folder = '/home/andrew/mitosis/MITOS/testing/'
-local netPath1 = '/home/andrew/mitosis/nets/net.t7'
-local netPath2 = '/home/andrew/mitosis/nets/dnn2_fullset_aug_30i_lr05_mini200_weightdecay0001.t7'
+local folder = '/home/andrew/mitosis/data/MITOS/testing/'
+--local netPath1 = '/home/andrew/mitosis/data/nets/net.t7'
+local netPath1 = '/home/andrew/mitosis/data/nets/dnn1_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7'
+local netPath2 = '/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7'
 
 local threshold = 0.1
 
@@ -48,15 +49,15 @@ for k,imagePath in ipairs(imagePaths) do
 	--local windowHeight = 101
 
 	local net1 = torch.load(netPath1)
-	--local net2 = torch.load(netPath2)
+	local net2 = torch.load(netPath2)
 	net1 = expand(net1)
-	--net2 = expand(net2)
+	net2 = expand(net2)
 	if cuda then
 		net1 = net1:cuda()
-		--net2 = net2:cuda()
+		net2 = net2:cuda()
 	else
 		net1 = net1:float()
-		--net2 = net2:float()
+		net2 = net2:float()
 	end
 
 	local img = image.load(imagePath, 3, 'float')
@@ -67,7 +68,7 @@ for k,imagePath in ipairs(imagePaths) do
 	end
 
 	-- scan sixteen versions of the image
-	-- four rotations and two neural nets
+	-- four rotations, paired with their reflections, and two neural nets
 	--]]
 	--[
 	local maps = {}
@@ -85,7 +86,7 @@ for k,imagePath in ipairs(imagePaths) do
 		end
 	end
 	net1 = nil
---[[
+--[
 	for i=5,8 do	
 		for j=1,2 do
 			local tmp = image.rotate(img, (i-1)*math.pi/2)

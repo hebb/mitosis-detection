@@ -231,3 +231,15 @@ function getBatchSizes(classes, classList, batchSize)
 	
 	return batchSizes, numBatches, numSamples
 end
+
+function shuffleImages(classList, classes)
+	local temp = {}
+	for i=1,#classes do
+		local perm = torch.randperm(classList[i]:size(1))
+		temp[i] = torch.LongTensor(classList[i]:size(1))
+		for j=1,classList[i]:size(1) do
+			temp[i][j] = classList[i][perm[j]]
+		end
+	end
+	return temp
+end
