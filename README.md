@@ -1,10 +1,10 @@
-# Mitosi Detection in Histopathology Images using Convolutional Neural Networks
+# Mitosis Detection in Histopathology Images using Convolutional Neural Networks
 
 An algorithm for detecting mitotic figures in breast cancer histology slides. This project will use Torch. The algorithm will use convolutional neural networks.
 
 ## Getting Started
 
-Install [torch](torch.ch)
+Install [torch](https://github.com/torch/torch7)
 
 Install the necessary packages.
 
