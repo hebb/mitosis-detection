@@ -14,7 +14,9 @@ end
 -- parameters
 local batchSize = 100
 local learningRate = 0.01
+local learningRateDecay = 0
 local weightDecay = 0.000
+local momentum = 0
 local maxIteration = 10
 
 local folder  = '/home/andrew/mitosis/data/mitosis-train-old/'
@@ -30,6 +32,7 @@ trainClassList[1] = classList[1][{{1,math.ceil(classList[1]:size(1)/2)}}]
 trainClassList[2] = classList[2][{{1,math.ceil(classList[2]:size(1)/2)}}]
 testClassList[1] = classList[1][{{math.ceil(classList[1]:size(1)/2)+1,classList[1]:size(1)}}]
 testClassList[2] = classList[2][{{math.ceil(classList[2]:size(1)/2)+1,classList[2]:size(1)}}]
+print(trainClassList[1]:size())
 --]]
 --[[
 trainClassList[1] = classList[1][{{1,math.ceil(classList[1]:size(1)/20)}}]
@@ -42,14 +45,14 @@ testClassList[2] = classList[2][{{math.ceil(classList[2]:size(1)/20)+1,math.ceil
 local classRatio = trainClassList[2]:size(1)/trainClassList[1]:size(1)
 
 -- define the model
-dofile("/home/andrew/mitosis/models/model.lua")
+dofile("/home/andrew/mitosis/models/modelSimple.lua")
 
 -- load the pre-trained model
-torch.load('/home/andrew/mitosis/data/nets/model-pretrained.t7')
+--torch.load('/home/andrew/mitosis/data/nets/model-pretrained.t7')
 
 -- train the network
 dofile("train.lua")
-train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, weightDecay, maxIteration, classRatio, false)
+train(net, criterion, classes, trainClassList, imagePaths, batchSize, learningRate, learningRateDecay, weightDecay, momentum, maxIteration, classRatio, false)
 
 -- save the model
 torch.save('/home/andrew/mitosis/data/nets/testNet.t7', net)
@@ -57,4 +60,4 @@ torch.save('/home/andrew/mitosis/data/nets/testNet.t7', net)
 
 -- test the network
 dofile("test.lua")
---test(net, classes, testClassList, imagePaths, batchSize)
+test(net, classes, testClassList, imagePaths, batchSize)
