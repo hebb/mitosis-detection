@@ -2,10 +2,10 @@ clear
 close all
 
 % path to folder containing training data
-old_trainset_folder = '/home/andrew/mitosis/MITOS/testing/';
+old_trainset_folder = '/home/andrew/mitosis/data/MITOS/testing/';
 
 % make training set directories
-new_trainset_folder = '/home/andrew/mitosis/mitosis-test/';
+new_trainset_folder = '/home/andrew/mitosis/data/mitosis-test/';
 if exist(new_trainset_folder, 'dir')
     rmdir(new_trainset_folder, 's')
 end

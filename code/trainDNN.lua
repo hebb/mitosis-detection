@@ -66,9 +66,9 @@ end
 
 -- train the network
 dofile("train.lua")
-net = torch.load('/home/andrew/mitosis/data/nets/model2-pretrained-greedylayerwise2.t7')
+--net = torch.load('/home/andrew/mitosis/data/nets/model2-pretrained-greedylayerwise2.t7')
 train(net, criterion, classes, trainClassList, trainImagePaths, batchSize, learningRate, learningRateDecay, weightDecay, momentum, maxIteration, classRatio, augment, netFolder)
-torch.save('/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7', net)
+--torch.save('/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7', net)
 
 -- test the network
 dofile("test.lua")

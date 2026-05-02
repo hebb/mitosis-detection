@@ -11,10 +11,14 @@ local dir = require 'pl.dir';
 local c = os.clock()
 local t = os.time()
 
+-- this folder must contain .png images
 local folder = '/home/andrew/mitosis/data/MITOS/testing/'
+
 --local netPath1 = '/home/andrew/mitosis/data/nets/net.t7'
-local netPath1 = '/home/andrew/mitosis/data/nets/dnn1_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7'
-local netPath2 = '/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7'
+--local netPath1 = '/home/andrew/mitosis/data/nets/dnn1_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7'
+--local netPath2 = '/home/andrew/mitosis/data/nets/dnn2_fullset_aug_20i_lr05_lrd0005_m09_mini200_aeptgl.t7'
+local netPath1 = '/home/andrew/mitosis/data/nets/dnn2_fullset_aug_30i_lr05_mini200.t7'
+local netPath2 = '/home/andrew/mitosis/data/nets/dnn1_fullset_aug_30i_lr05_mini200.t7'
 
 local threshold = 0.1
 
@@ -86,7 +90,7 @@ for k,imagePath in ipairs(imagePaths) do
 		end
 	end
 	net1 = nil
---[
+--[[
 	for i=5,8 do	
 		for j=1,2 do
 			local tmp = image.rotate(img, (i-1)*math.pi/2)
