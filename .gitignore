@@ -2,3 +2,6 @@ data
 thesis
 data.tar.gz
 todo.txt
+__pycache__
+*.pt
+.venv/
